@@ -1,0 +1,34 @@
+name: quality-assurance
+
+on:
+  push:
+    tags-ignore:
+      - '**'
+    branches:
+      - '**'
+
+jobs:
+  qa:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout python-app
+        uses: actions/checkout@v4
+        with:
+          path: python-app
+
+
+# Instead of setup Python and pip install there should be Docker container pulled with preinstalled deps
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install qa deps
+        run: pip install -r backend/requirements-dev.txt
+
+      - name: Run pre-commit
+        run: pre-commit run -a
+
+      - name: Run unit tests
+        run: echo TODO

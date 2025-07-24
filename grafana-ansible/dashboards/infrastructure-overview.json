@@ -1,0 +1,69 @@
+{
+    "dashboard": {
+        "id": "b835d320-5c5e-4f7e-9179-21d009df1544",
+        "uid:": "0ea4c1a2-7e5e-4f3d-b5ae-79bee4cc93f4",
+        "title": "Infrastructure Overview",
+        "tags": ["infrastructure", "prometheus", "node-exporter", "kubernetes"],
+        "timezone": "browser",
+        "panels": [
+        {
+            "id": 1,
+            "title": "CPU Usage",
+            "type": "timeseries",
+            "datasource": "Prometheus",
+            "targets": [
+                {
+                    "expr": "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+                    "refId": "A",
+                    "legendFormat": "{{ instance }}"
+                }
+            ],
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "fieldConfig": {
+                "defaults": {
+                "unit": "percent",
+                "min": 0,
+                "max": 100
+                }
+            }
+        },
+        {
+            "id": 2,
+            "title": "Memory Usage",
+            "type": "timeseries",
+            "datasource": "Prometheus",
+            "targets": [
+                {
+                    "expr": "100 * (1 - ((node_memory_MemAvailable_bytes or node_memory_MemFree_bytes) / node_memory_MemTotal_bytes))",
+                    "refId": "A",
+                    "legendFormat": "{{ instance }}"
+                }
+            ],
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100
+                }
+            }
+        }
+        ],
+        "time": {
+            "from": "now-1h",
+            "to": "now"
+        },
+        "refresh": "30s"
+    },
+    "overwrite": true
+}

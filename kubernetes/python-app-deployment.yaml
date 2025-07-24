@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-app-deployment
+  labels:
+    app: python-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-app-pod
+  template:
+    metadata:
+      labels:
+        app: python-app-pod
+    spec:
+      containers:
+        - name: python-app
+          image: python-app:dev  # LOCAL image name
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-app-service
+spec:
+  selector:
+    app: python-app-pod
+  ports:
+    - port: 8000
+      targetPort: 8000

@@ -1,0 +1,51 @@
+---
+- name: Configure Prometheus Datasource in Grafana
+  hosts: localhost
+  connection: local
+  vars:
+    environment: "{{ env | default('dev') }}"
+    grafana_url: "{{ vault_grafana_url }}"
+    grafana_user: "{{ vault_grafana_user }}"
+    grafana_password: "{{ vault_grafana_password }}"
+    prometheus_url: "{{ vault_prometheus_url }}"
+  vars_files:
+    - "vault/vault-{{ environment }}.yaml"
+  
+  tasks:
+    - name: Display environment information
+      debug:
+        msg: "Configuring {{ environment }} environment - Grafana: {{ grafana_url }}, Prometheus: {{ prometheus_url }}"
+        
+    - name: Configure Prometheus datasource in Grafana
+      uri:
+        url: "{{ grafana_url }}/api/datasources"
+        method: POST
+        user: "{{ grafana_user }}"
+        password: "{{ grafana_password }}"
+        force_basic_auth: yes
+        body_format: json
+        body:
+          name: "Prometheus"
+          type: "prometheus"
+          url: "{{ prometheus_url }}"
+          access: "proxy"
+          isDefault: true
+          basicAuth: false
+          jsonData:
+            timeInterval: "5s"
+            queryTimeout: "60s"
+            httpMethod: "POST"
+        headers:
+          Content-Type: "application/json"
+        status_code: [200, 409]  # 409 if datasource already exists
+      register: datasource_result
+      
+    - name: Display datasource creation result
+      debug:
+        msg: "Datasource configured successfully: {{ datasource_result.status }}"
+      when: datasource_result.status == 200
+      
+    - name: Display datasource already exists message
+      debug:
+        msg: "Prometheus datasource already exists"
+      when: datasource_result.status == 409
