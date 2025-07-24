@@ -124,15 +124,6 @@ echo "  🐍 Python App: http://localhost:8000"
 echo "  📚 Documentation: http://localhost:12000"
 echo ""
 
-# Show all service status
-echo "📊 Service Status:"
-kubectl get services
-echo ""
-
-echo "🚀 Pod Status:"
-kubectl get pods
-echo ""
-
 # Deploy Grafana dashboards only if Grafana is accessible
 if curl -s http://localhost:30030 > /dev/null; then
     echo "🚀 Deploying dashboards to DEV environment..."
