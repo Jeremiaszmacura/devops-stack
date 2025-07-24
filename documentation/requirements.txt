@@ -2,4 +2,3 @@ mkdocs
 mkdocs-material
 markdown
 pymdown-extensions
-```

@@ -11,8 +11,8 @@ grafana-ansible/
 ├── deploy-prod.yaml          # Production deployment  
 ├── setup-datasource.yaml    # Configure Prometheus datasource
 ├── deploy-dashboards.yaml   # Deploy dashboard JSON files
-├── vault-dev.yml            # Encrypted dev credentials
-├── vault-prod.yml           # Encrypted prod credentials
+├── vault-dev.yaml            # Encrypted dev credentials
+├── vault-prod.yaml           # Encrypted prod credentials
 ├── .vault_pass              # Vault password file
 ├── deploy-to-dev.sh         # Dev deployment script
 ├── deploy-to-prod.sh        # Prod deployment script (with confirmation)
@@ -56,19 +56,19 @@ ansible-playbook deploy-dashboards.yaml -e env=dev --vault-password-file .vault_
 ### View Credentials
 ```bash
 # Development
-ansible-vault view vault-dev.yml --vault-password-file .vault_pass
+ansible-vault view vault-dev.yaml --vault-password-file .vault_pass
 
 # Production
-ansible-vault view vault-prod.yml --vault-password-file .vault_pass
+ansible-vault view vault-prod.yaml --vault-password-file .vault_pass
 ```
 
 ### Edit Credentials
 ```bash
 # Development
-ansible-vault edit vault-dev.yml --vault-password-file .vault_pass
+ansible-vault edit vault-dev.yaml --vault-password-file .vault_pass
 
 # Production
-ansible-vault edit vault-prod.yml --vault-password-file .vault_pass
+ansible-vault edit vault-prod.yaml --vault-password-file .vault_pass
 ```
 
 ## 📊 Adding New Dashboards
@@ -91,12 +91,12 @@ Example dashboard structure:
 
 ## 🌍 Environment Configuration
 
-### Development (vault-dev.yml)
+### Development (vault-dev.yaml)
 - **Grafana URL**: `http://localhost:3000`
 - **Prometheus URL**: `http://prometheus:9090`
 - **Credentials**: Basic dev credentials
 
-### Production (vault-prod.yml)
+### Production (vault-prod.yaml)
 - **Grafana URL**: Production Grafana instance
 - **Prometheus URL**: Production Prometheus instance
 - **Credentials**: Secure production credentials
@@ -123,10 +123,10 @@ sleep 15 && ansible-playbook grafana-ansible/deploy-dev.yaml --vault-password-fi
 ### Vault Issues
 ```bash
 # Test vault password
-ansible-vault view vault-dev.yml --vault-password-file .vault_pass
+ansible-vault view vault-dev.yaml --vault-password-file .vault_pass
 
 # Re-encrypt with new password
-ansible-vault rekey vault-dev.yml
+ansible-vault rekey vault-dev.yaml
 ```
 
 ### Connection Issues

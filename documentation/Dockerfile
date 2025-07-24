@@ -13,8 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY docs ./docs
 COPY mkdocs.yml .
 
-# Expose the port for the MkDocs server
-EXPOSE 8000
+# Expose port
+EXPOSE 11000
 
-# Command to run the MkDocs server
-CMD ["mkdocs", "serve", "--dev-addr=0.0.0.0:12000"]
+# Start MkDocs server
+CMD ["mkdocs", "serve", "--dev-addr=0.0.0.0:11000"]
