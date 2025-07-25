@@ -2,6 +2,16 @@
 
 A simple Python Web Application built with FastAPI to expose metrics and simulate traffic.
 
+## Redeploy to already existing cluster
+
+Run in root repository directory:
+
+```bash
+docker build -t python-app:dev ./python-app
+kind load docker-image python-app:dev --name sample-cluster
+kubectl rollout restart deployment python-app-deployment
+```
+
 ## Prerequisites
 
 - Python 3.13 or higher

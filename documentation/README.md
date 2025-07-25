@@ -7,11 +7,9 @@ This project is designed to provide a comprehensive documentation site using MkD
 - **docs/**: Contains the documentation files.
   - **index.md**: Main landing page for the documentation.
   - **getting-started.md**: Guide for new users to get started with the project.
-  - **api-reference.md**: Detailed information about the project's API.
 
 - **k8s/**: Contains Kubernetes configuration files.
   - **deployment.yaml**: Defines the Kubernetes deployment configuration.
-  - **service.yaml**: Defines the Kubernetes service configuration.
   - **ingress.yaml**: Defines the Kubernetes ingress configuration.
 
 - **mkdocs.yml**: Configuration file for MkDocs.
@@ -19,6 +17,8 @@ This project is designed to provide a comprehensive documentation site using MkD
 - **requirements.txt**: Lists the Python dependencies required for the project.
 
 - **Dockerfile**: Instructions to build a Docker image for the project.
+
+- **.dockeringore**: Specifies files and directories to ignore when building the Docker image.
 
 ## Getting Started
 

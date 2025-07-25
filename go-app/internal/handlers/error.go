@@ -10,7 +10,8 @@ import (
 func Error(c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, gin.H{
 		"error":     "This is a simulated error endpoint",
-		"code":      "500",
+		"code":      500,
 		"timestamp": time.Now().UTC().Format(time.RFC3339),
+		"service":   "go-app",
 	})
 }

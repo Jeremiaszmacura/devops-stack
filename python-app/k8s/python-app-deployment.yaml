@@ -16,6 +16,7 @@ spec:
     spec:
       containers:
         - name: python-app
+          imagePullPolicy: IfNotPresent
           image: python-app:dev  # LOCAL image name
           ports:
             - containerPort: 8000

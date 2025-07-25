@@ -13,4 +13,6 @@ FROM gcr.io/distroless/base
 
 COPY --from=builder /app/go-app /go-app
 
+EXPOSE 8080
+
 CMD ["/go-app"]

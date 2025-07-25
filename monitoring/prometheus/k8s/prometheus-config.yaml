@@ -27,4 +27,9 @@ data:
           - targets: ['python-app-service:8000']
         metrics_path: '/metrics'
         scrape_interval: 5s
-
+      
+      - job_name: 'go-app'
+        static_configs:
+          - targets: ['go-app-service:8080']
+        metrics_path: '/metrics'
+        scrape_interval: 5s

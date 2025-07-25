@@ -9,9 +9,11 @@ kind create cluster --config kind-cluster.yaml --name sample-cluster
 # Build and load application images
 echo "🐳 Building and loading Docker images..."
 docker build -t python-app:dev ./python-app
+docker build -t go-app:dev ./go-app
 docker build -t mkdocs-documentation:dev ./documentation
 
 kind load docker-image python-app:dev --name sample-cluster
+kind load docker-image go-app:dev --name sample-cluster
 kind load docker-image mkdocs-documentation:dev --name sample-cluster
 
 # Deploy infrastructure components first (namespaces, RBAC, etc.)
@@ -36,6 +38,9 @@ kubectl apply -f nginx/k8s/
 
 echo "  🐍 Deploying Python app..."
 kubectl apply -f python-app/k8s/
+
+echo "  🔧 Deploying Go app..."
+kubectl apply -f go-app/k8s/
 
 echo "  📚 Deploying documentation..."
 kubectl apply -f documentation/k8s/
@@ -121,6 +126,7 @@ echo "  📊 Prometheus: http://localhost:30090"
 echo "  📈 Grafana: http://localhost:30030"
 echo "  🌐 NGINX: http://localhost:30080"
 echo "  🐍 Python App: http://localhost:8000"
+echo "  🔧 Go App: http://localhost:31080"  # Add this line
 echo "  📚 Documentation: http://localhost:12000"
 echo ""
 

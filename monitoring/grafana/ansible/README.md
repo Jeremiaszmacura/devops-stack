@@ -17,8 +17,9 @@ grafana-ansible/
 ├── deploy-to-dev.sh         # Dev deployment script
 ├── deploy-to-prod.sh        # Prod deployment script (with confirmation)
 └── dashboards/              # Dashboard JSON definitions
-    ├── python-app-metrics.json
-    └── infrastructure-overview.json
+    ├── python-app.json
+    ├── nginx.json
+    └── infrastructure.json
 ```
 
 ## 🚀 Quick Start
@@ -71,10 +72,24 @@ ansible-vault edit vault-dev.yaml --vault-password-file .vault_pass
 ansible-vault edit vault-prod.yaml --vault-password-file .vault_pass
 ```
 
+## Decrypt Credentials
+```bash
+# Decrypt vault files (for manual editing)
+ansible-vault decrypt vault-dev.yaml --vault-password-file .vault_pass
+ansible-vault decrypt vault-prod.yaml --vault-password-file .vault_pass
+```
+
+## Encrypt Credentials
+```bash
+# Re-encrypt vault files after editing
+ansible-vault encrypt vault-dev.yaml --vault-password-file .vault_pass
+ansible-vault encrypt vault-prod.yaml --vault-password-file .vault_pass
+```
+
 ## 📊 Adding New Dashboards
 
 1. Create a new JSON file in `dashboards/` directory
-2. Ensure the JSON includes `"overwrite": true`
+2. Ensure the JSON includes `"overwrite": true` to replace existing dashboards
 3. Run deployment: `./deploy-to-dev.sh`
 
 Example dashboard structure:

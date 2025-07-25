@@ -1,13 +1,13 @@
 package main
 
 import (
-	"log"
-
 	"go-app/internal/server"
+	"log"
 )
 
 func main() {
-	// Start the server
+	log.Println("Starting Go application...")
+
 	if err := server.StartServer(); err != nil {
 		log.Fatalf("Could not start server: %v", err)
 	}

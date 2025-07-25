@@ -1,70 +1,69 @@
 # Go Application
 
-This project is a simple Go application that includes a health check endpoint. It is structured to follow best practices for Go applications, with a clear separation of concerns.
+A Go web application built with Gin framework to expose Prometheus metrics and simulate traffic patterns.
 
-## Project Structure
+## Features
 
-```
-go-app
-├── cmd
-│   └── main.go          # Entry point of the application
-├── internal
-│   ├── handlers
-│   │   └── health.go    # Health check handler
-│   └── server
-│       └── server.go     # Server setup and route definitions
-├── kubernetes
-│   └── go-app-deployment.yaml # Kubernetes deployment and service configuration
-├── Dockerfile            # Dockerfile for building the application image
-├── go.mod                # Go module definition
-├── go.sum                # Dependency checksums
-└── README.md             # Project documentation
-```
+- HTTP endpoints with Prometheus metrics
+- Middleware for automatic request tracking
+- Health checks and error simulation
+- Compatible with Prometheus scraping
 
-## Getting Started
+## Endpoints
 
-### Prerequisites
+- `GET /` - Home endpoint
+- `GET /health` - Health check
+- `GET /metrics` - Prometheus metrics
+- `GET /error` - Simulated error (returns 500)
+- `GET /redirect` - Redirect to /health
 
-- Go 1.16 or later
-- Docker (for building the Docker image)
-- Kubernetes (for deploying the application)
+## Metrics Exposed
 
-### Building the Application
+- `http_requests_total` - Total HTTP requests by method, endpoint, and status
+- `http_request_duration_seconds` - Request duration histogram
+- `http_responses_by_status_total` - Response count by status class (2XX, 4XX, etc.)
+- `monitoring_requests_total` - Separate tracking for /metrics and /health endpoints
 
-To build the application, navigate to the project directory and run:
+## Development
 
-```
-go build -o go-app ./cmd/main.go
+### Running Locally
+
+```bash
+go mod tidy
+go run cmd/main.go
 ```
 
-### Running the Application
+The application will be available at http://localhost:8080
 
-You can run the application locally using:
+### Running with Docker
 
-```
-go run ./cmd/main.go
-```
-
-The application will start on `http://localhost:8000`. You can check the health of the application by visiting `http://localhost:8000/health`.
-
-### Docker
-
-To build the Docker image, run:
-
-```
+```bash
 docker build -t go-app:dev .
+docker run -p 8080:8080 go-app:dev
 ```
 
-### Kubernetes Deployment
+### Deploying to Kubernetes
 
-To deploy the application on a Kubernetes cluster, apply the deployment configuration:
+```bash
+# Build and load image to kind cluster
+docker build -t go-app:dev .
+kind load docker-image go-app:dev --name sample-cluster
 
+# Deploy to cluster
+kubectl apply -f k8s/
+
+# Access via NodePort
+curl http://localhost:31000
 ```
-kubectl apply -f kubernetes/go-app-deployment.yaml
+
+## Prometheus Integration
+
+The app automatically exposes metrics on `/metrics` endpoint in Prometheus format. Add this job to your Prometheus configuration:
+
+```yaml
+- job_name: 'go-app'
+  static_configs:
+    - targets: ['go-app-service:8080']
+  metrics_path: '/metrics'
+  scrape_interval: 5s
 ```
-
-This will create a deployment with one replica and expose the application via a service on port 8000.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.

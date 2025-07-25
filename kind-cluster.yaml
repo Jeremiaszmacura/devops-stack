@@ -1,3 +1,4 @@
+# This file maps ports between the host and the kind cluster.
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
@@ -12,8 +13,11 @@ nodes:
       - containerPort: 30080  # NGINX NodePort
         hostPort: 30080
         protocol: TCP
-      - containerPort: 32000  # Python App NodePort (changed to valid NodePort range)
+      - containerPort: 32000  # Python App NodePort
         hostPort: 8000
+        protocol: TCP
+      - containerPort: 31080  # Go App NodePort
+        hostPort: 31080
         protocol: TCP
       - containerPort: 30800  # MkDocs NodePort
         hostPort: 12000

@@ -1,0 +1,114 @@
+{
+    "dashboard": {
+      "id": null,
+      "title": "NGINX Monitoring",
+      "tags": ["nginx", "monitoring"],
+      "timezone": "browser",
+      "panels": [
+        {
+          "id": 1,
+          "title": "NGINX Status",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "nginx_up",
+              "legendFormat": "Status"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {"options": {"0": {"text": "Down"}}, "type": "value"},
+                {"options": {"1": {"text": "Up"}}, "type": "value"}
+              ],
+              "thresholds": {
+                "steps": [
+                  {"color": "red", "value": 0},
+                  {"color": "green", "value": 1}
+                ]
+              }
+            }
+          },
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+        },
+        {
+          "id": 2,
+          "title": "Active Connections",
+          "type": "stat",
+          "targets": [
+            {
+              "expr": "nginx_connections_active",
+              "legendFormat": "Active Connections"
+            }
+          ],
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+        },
+        {
+          "id": 3,
+          "title": "Request Rate",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "rate(nginx_http_requests_total[5m])",
+              "legendFormat": "Requests/sec"
+            }
+          ],
+          "gridPos": {"h": 9, "w": 24, "x": 0, "y": 8}
+        },
+        {
+          "id": 4,
+          "title": "HTTP Response Codes",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "rate(nginx_http_requests_total{status=~\"2..\"}[5m])",
+              "legendFormat": "2xx"
+            },
+            {
+              "expr": "rate(nginx_http_requests_total{status=~\"4..\"}[5m])",
+              "legendFormat": "4xx"
+            },
+            {
+              "expr": "rate(nginx_http_requests_total{status=~\"5..\"}[5m])",
+              "legendFormat": "5xx"
+            }
+          ],
+          "gridPos": {"h": 9, "w": 12, "x": 0, "y": 17}
+        },
+        {
+          "id": 5,
+          "title": "Connection States",
+          "type": "graph",
+          "targets": [
+            {
+              "expr": "nginx_connections_accepted",
+              "legendFormat": "Accepted"
+            },
+            {
+              "expr": "nginx_connections_handled",
+              "legendFormat": "Handled"
+            },
+            {
+              "expr": "nginx_connections_reading",
+              "legendFormat": "Reading"
+            },
+            {
+              "expr": "nginx_connections_writing",
+              "legendFormat": "Writing"
+            },
+            {
+              "expr": "nginx_connections_waiting",
+              "legendFormat": "Waiting"
+            }
+          ],
+          "gridPos": {"h": 9, "w": 12, "x": 12, "y": 17}
+        }
+      ],
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "refresh": "30s"
+    },
+    "overwrite": true
+  }
