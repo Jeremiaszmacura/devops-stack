@@ -22,5 +22,8 @@ nodes:
       - containerPort: 30800  # MkDocs NodePort
         hostPort: 12000
         protocol: TCP
+      - containerPort: 30070  # Frontend App NodePort
+        hostPort: 3000
+        protocol: TCP
   - role: worker
   - role: worker

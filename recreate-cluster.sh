@@ -11,10 +11,12 @@ echo "🐳 Building and loading Docker images..."
 docker build -t python-app:dev ./python-app
 docker build -t go-app:dev ./go-app
 docker build -t mkdocs-documentation:dev ./documentation
+docker build -t frontend-app:dev ./frontend-app
 
 kind load docker-image python-app:dev --name sample-cluster
 kind load docker-image go-app:dev --name sample-cluster
 kind load docker-image mkdocs-documentation:dev --name sample-cluster
+kind load docker-image frontend-app:dev --name sample-cluster
 
 # Deploy infrastructure components first (namespaces, RBAC, etc.)
 echo "🏗️  Deploying infrastructure components..."
@@ -41,6 +43,9 @@ kubectl apply -f python-app/k8s/
 
 echo "  🔧 Deploying Go app..."
 kubectl apply -f go-app/k8s/
+
+echo "  ⚛️  Deploying Frontend App..."
+kubectl apply -f frontend-app/k8s/
 
 echo "  📚 Deploying documentation..."
 kubectl apply -f documentation/k8s/
@@ -100,6 +105,23 @@ else
     echo "✅ Python app is accessible"
 fi
 
+# Check Frontend App
+echo "  Checking frontend-app..."
+timeout=30
+while ! curl -s http://localhost:3000 > /dev/null && [ $timeout -gt 0 ]; do
+    sleep 2
+    timeout=$((timeout-2))
+done
+
+if [ $timeout -le 0 ]; then
+    echo "⚠️  Warning: frontend-app not accessible at http://localhost:3000"
+    echo "   Check service and pod status:"
+    kubectl get services frontend-app-service
+    kubectl get pods -l app=frontend-app
+else
+    echo "✅ Frontend App is accessible"
+fi
+
 # Check MkDocs
 echo "  Checking Documentation..."
 timeout=30
@@ -126,7 +148,8 @@ echo "  📊 Prometheus: http://localhost:30090"
 echo "  📈 Grafana: http://localhost:30030"
 echo "  🌐 NGINX: http://localhost:30080"
 echo "  🐍 Python App: http://localhost:8000"
-echo "  🔧 Go App: http://localhost:31080"  # Add this line
+echo "  🔧 Go App: http://localhost:31080"
+echo "  ⚛️  Frontend App: http://localhost:3000"
 echo "  📚 Documentation: http://localhost:12000"
 echo ""
 
