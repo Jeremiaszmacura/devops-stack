@@ -9,15 +9,15 @@ import (
 )
 
 func StartServer() error {
-	r := gin.Default()
-	r.Use(metrics.PrometheusMiddleware())
+	router := gin.Default()                    // Initialize default Gin router (includes Logger and Recovery middleware)
+	router.Use(metrics.PrometheusMiddleware()) // Custom middleware for Prometheus metrics
 
-	r.GET("/", handlers.Home)
-	r.GET("/health", handlers.HealthCheck)
-	r.GET("/metrics", handlers.Metrics)
-	r.GET("/error", handlers.Error)
-	r.GET("/redirect", handlers.Redirect)
+	router.GET("/", handlers.Home)
+	router.GET("/health", handlers.HealthCheck)
+	router.GET("/metrics", handlers.Metrics)
+	router.GET("/error", handlers.Error)
+	router.GET("/redirect", handlers.Redirect)
 
 	log.Println("Starting Go server on :8080")
-	return r.Run(":8080")
+	return router.Run(":8080")
 }

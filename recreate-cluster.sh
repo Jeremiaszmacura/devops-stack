@@ -27,7 +27,7 @@ fi
 # Deploy applications in order
 echo "🚀 Deploying applications..."
 
-# Deploy monitoring first (Prometheus, then Grafana)
+# Deploy monitoring (Prometheus, then Grafana)
 echo "  📊 Deploying Prometheus..."
 kubectl apply -f monitoring/prometheus/k8s/
 
