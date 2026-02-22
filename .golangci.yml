@@ -1,0 +1,51 @@
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  disable-all: true
+  enable:
+    # --- YAGNI & Clean Code ---
+    - unused        # Finds unused constants, variables, functions and types (YAGNI)
+    - deadcode      # Finds unused code
+    - gosimple      # Forces the simplest way to write a construct
+    
+    # --- Small, Focused Functions ---
+    - gocyclo       # Computes function complexity (Prevents "God Functions")
+    - funlen        # Limits the length of functions (Forces small/focused units)
+    
+    # --- Avoid Duplication (DRY) ---
+    - dupl          # Tool for code clone detection
+    
+    # --- Error Handling ---
+    - errcheck      # Ensures all errors are handled
+    - wrapcheck     # Forces wrapping of errors from external packages (better tracing)
+    
+    # --- Maintainability & Naming ---
+    - revive        # General purpose linter for naming and style
+    - gocritic      # Provides diagnostics for bugs, performance and style issues
+    - dogsled       # Checks assignments with too many blank identifiers
+    
+    # --- Formatting & Imports ---
+    - goimports     # Fixes imports/formatting
+    - misspell      # Spelling check for comments/names
+
+linters-settings:
+  funlen:
+    lines: 40       # Max lines per function
+    statements: 20  # Max statements per function
+  gocyclo:
+    min-complexity: 10 # Max cyclomatic complexity (logic branches)
+  dupl:
+    threshold: 100  # Token sequence length to be considered a duplicate
+  revive:
+    rules:
+      - name: var-naming
+      - name: package-comments
+      - name: exported
+      - name: indent-error-flow
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - opinionated
