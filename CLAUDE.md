@@ -1,4 +1,10 @@
-- Write code following YAAGNI principles. Only add code that is necessary for the current requirements. Avoid adding features or functionality that may be needed in the future but are not currently required. Focus on delivering a simple and functional solution that meets the immediate needs of the project.
+## General
+
+- At the end of each plan, give me a list of unresolved questions to answer, if any. Make questions extremely concise.
+
+## Programming rules
+
+- Write code following YAGNI principles. Only add code that is necessary for the current requirements. Avoid adding features or functionality that may be needed in the future but are not currently required. Focus on delivering a simple and functional solution that meets the immediate needs of the project.
 
 - Code should be clean, well-structured, and easy to understand. Use meaningful variable and function names, and include comments where necessary to explain complex logic or decisions. Avoid unnecessary complexity and strive for simplicity in your code design.
 

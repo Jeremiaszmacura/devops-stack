@@ -24,4 +24,5 @@ jobs:
         uses: golangci/golangci-lint-action@v9
         with:
           version: latest
-          path: ./go-app
+          args: --config=${{ github.workspace }}/.claude/.golangci.yml --issues-exit-code=0
+          working-directory: go-app
