@@ -27,6 +27,7 @@ jobs:
       - name: Install qa deps
         run: |
           ls -lah
+          ls -lah python-app
           pip install -r requirements-dev.txt
 
       - name: Run app tests
