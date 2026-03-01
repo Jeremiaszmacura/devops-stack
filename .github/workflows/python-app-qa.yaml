@@ -28,4 +28,4 @@ jobs:
 
       - name: Run app tests
         working-directory: python-app
-        run: tox ./
+        run: tox -e py314 -- .
