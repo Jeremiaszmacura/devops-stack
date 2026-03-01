@@ -25,7 +25,9 @@ jobs:
           python-version: '3.14'
 
       - name: Install qa deps
-        run: pip install -r requirements-dev.txt
+        run: |
+          ls -lah
+          pip install -r requirements-dev.txt
 
       - name: Run app tests
         run: |
