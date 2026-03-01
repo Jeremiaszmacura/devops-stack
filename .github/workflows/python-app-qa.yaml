@@ -30,4 +30,5 @@ jobs:
       - name: Run app tests
         working-directory: python-app
         run: |
+          ls -lah
           tox
