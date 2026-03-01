@@ -24,11 +24,8 @@ jobs:
 
       - name: Install qa deps
         working-directory: python-app
-        run: |
-          pip install -r requirements-dev.txt
+        run: pip install -r requirements-dev.txt
 
       - name: Run app tests
         working-directory: python-app
-        run: |
-          ls -lah
-          tox
+        run: tox
