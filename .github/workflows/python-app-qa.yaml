@@ -14,9 +14,7 @@ jobs:
 
     steps:
       - name: Checkout python-app
-        uses: actions/checkout@v4
-        with:
-          path: python-app
+        uses: actions/checkout@v6
 
 # Instead of setup Python and pip install there should be Docker container pulled with preinstalled deps
       - name: Set up Python
@@ -25,11 +23,11 @@ jobs:
           python-version: '3.14'
 
       - name: Install qa deps
+        working-directory: python-app
         run: |
-          ls -lah
-          ls -lah python-app
           pip install -r requirements-dev.txt
 
       - name: Run app tests
+        working-directory: python-app
         run: |
           tox
