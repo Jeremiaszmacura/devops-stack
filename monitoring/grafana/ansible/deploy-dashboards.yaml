@@ -3,18 +3,15 @@
   hosts: localhost
   connection: local
   vars:
-    environment: "{{ env | default('dev') }}"
-    grafana_url: "{{ vault_grafana_url }}"
-    grafana_user: "{{ vault_grafana_user }}"
-    grafana_password: "{{ vault_grafana_password }}"
+    grafana_url: "http://localhost:30030"
+    grafana_user: "admin"
+    grafana_password: "admin"
     dashboards_dir: "./dashboards"
-  vars_files:
-    - "vault/vault-{{ environment }}.yaml"
   
   tasks:
     - name: Display environment information
       debug:
-        msg: "Deploying to {{ environment }} environment - Grafana URL: {{ grafana_url }}"
+        msg: "Deploying dashboards - Grafana URL: {{ grafana_url }}"
     
     - name: Find all dashboard JSON files
       find:

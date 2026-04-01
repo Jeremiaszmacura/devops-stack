@@ -4,10 +4,11 @@ import './App.css';
 
 function App() {
   const [selectedApp, setSelectedApp] = useState('python-app');
-  const [selectedEndpoint, setSelectedEndpoint] = useState('/');
+  const [selectedEndpoint, setSelectedEndpoint] = useState('Home');
   const [requestCount, setRequestCount] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState([]);
+  const [jsonBody, setJsonBody] = useState('{\n  "key": "value"\n}');
   const [stats, setStats] = useState({
     total: 0,
     successful: 0,
@@ -17,18 +18,18 @@ function App() {
 
   const endpoints = {
     'python-app': [
-      { path: '/', name: 'Home', description: 'Get welcome message' },
-      { path: '/health', name: 'Health Check', description: 'Check app health' },
-      { path: '/error', name: 'Error', description: 'Simulate error (500)' },
-      { path: '/redirect', name: 'Redirect', description: 'Redirect to health' },
-      { path: '/metrics', name: 'Metrics', description: 'Prometheus metrics' }
+      { path: '/', name: 'Home', method: 'GET', description: 'Get welcome message' },
+      { path: '/health', name: 'Health Check', method: 'GET', description: 'Check app health' },
+      { path: '/error', name: 'Error', method: 'GET', description: 'Simulate error (500)' },
+      { path: '/redirect', name: 'Redirect', method: 'GET', description: 'Redirect to health' },
+      { path: '/metrics', name: 'Metrics', method: 'GET', description: 'Prometheus metrics' }
     ],
     'go-app': [
-      { path: '/', name: 'Home', description: 'Get welcome message' },
-      { path: '/health', name: 'Health Check', description: 'Check app health' },
-      { path: '/error', name: 'Error', description: 'Simulate error (500)' },
-      { path: '/redirect', name: 'Redirect', description: 'Redirect to health' },
-      { path: '/metrics', name: 'Metrics', description: 'Prometheus metrics' }
+      { path: '/', name: 'Home', method: 'GET', description: 'Get welcome message' },
+      { path: '/health', name: 'Health Check', method: 'GET', description: 'Check app health' },
+      { path: '/error', name: 'Error', method: 'GET', description: 'Simulate error (500)' },
+      { path: '/redirect', name: 'Redirect', method: 'GET', description: 'Redirect to health' },
+      { path: '/metrics', name: 'Metrics', method: 'GET', description: 'Prometheus metrics' }
     ]
   };
 
@@ -42,13 +43,33 @@ function App() {
     return '';
   };
 
+  const getSelectedEndpointMeta = () => {
+    return endpoints[selectedApp].find((e) => e.name === selectedEndpoint);
+  };
+
+  const isPostEndpoint = () => {
+    const meta = getSelectedEndpointMeta();
+    return meta && meta.method === 'POST';
+  };
+
   const makeRequest = async (url) => {
     const startTime = Date.now();
+    const meta = getSelectedEndpointMeta();
+    const method = meta ? meta.method : 'GET';
     try {
-      const response = await axios.get(url, {
-        timeout: 10000,
-        validateStatus: (status) => status < 600 // Accept all HTTP status codes
-      });
+      let response;
+      if (method === 'POST') {
+        const parsedBody = JSON.parse(jsonBody);
+        response = await axios.post(url, parsedBody, {
+          timeout: 10000,
+          validateStatus: (status) => status < 600
+        });
+      } else {
+        response = await axios.get(url, {
+          timeout: 10000,
+          validateStatus: (status) => status < 600
+        });
+      }
       const endTime = Date.now();
       return {
         success: true,
@@ -76,8 +97,9 @@ function App() {
     setIsLoading(true);
     setResults([]);
     
+    const meta = getSelectedEndpointMeta();
     const baseUrl = getBaseUrl(selectedApp);
-    const fullUrl = `${baseUrl}${selectedEndpoint}`;
+    const fullUrl = `${baseUrl}${meta ? meta.path : '/'}`;
     
     const requests = [];
     const newResults = [];
@@ -142,7 +164,7 @@ function App() {
               value={selectedApp}
               onChange={(e) => {
                 setSelectedApp(e.target.value);
-                setSelectedEndpoint('/'); // Reset endpoint when app changes
+                setSelectedEndpoint('Home'); // Reset endpoint when app changes
               }}
               className="form-control"
             >
@@ -160,12 +182,27 @@ function App() {
               className="form-control"
             >
               {endpoints[selectedApp].map((endpoint) => (
-                <option key={endpoint.path} value={endpoint.path}>
-                  {endpoint.name} ({endpoint.path}) - {endpoint.description}
+                <option key={endpoint.name} value={endpoint.name}>
+                  [{endpoint.method}] {endpoint.name} ({endpoint.path}) - {endpoint.description}
                 </option>
               ))}
             </select>
           </div>
+
+          {isPostEndpoint() && (
+            <div className="form-group">
+              <label htmlFor="json-body">Request Body (JSON):</label>
+              <textarea
+                id="json-body"
+                value={jsonBody}
+                onChange={(e) => setJsonBody(e.target.value)}
+                className="form-control"
+                rows={6}
+                placeholder='{"key": "value"}'
+                style={{ fontFamily: 'monospace' }}
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="request-count">Number of Requests:</label>
@@ -252,8 +289,8 @@ function App() {
 
       <footer className="App-footer">
         <p>
-          🎯 Target: <strong>{selectedApp}</strong> | 
-          🌐 Endpoint: <strong>{selectedEndpoint}</strong> | 
+          🎯 Target: <strong>{selectedApp}</strong> |
+          🌐 Endpoint: <strong>{getSelectedEndpointMeta()?.path || '/'}</strong> |
           📦 Requests: <strong>{requestCount}</strong>
         </p>
       </footer>

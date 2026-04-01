@@ -157,11 +157,11 @@ echo ""
 if curl -s http://localhost:30030 > /dev/null; then
     echo "🚀 Deploying dashboards to DEV environment..."
     # Update the Grafana URL in the Ansible playbook to use the correct port
-    GRAFANA_URL="http://localhost:30030" ansible-playbook monitoring/grafana/ansible/deploy-dev.yaml --vault-password-file monitoring/grafana/ansible/vault/.vault_pass
+    ansible-playbook monitoring/grafana/ansible/deploy-dev.yaml
 else
     echo "⚠️  Skipping dashboard deployment - Grafana not accessible"
     echo "   Run the following command manually once Grafana is ready:"
-    echo "   GRAFANA_URL='http://localhost:30030' ansible-playbook monitoring/grafana/ansible/deploy-dev.yaml --vault-password-file monitoring/grafana/ansible/vault/.vault_pass"
+    echo "   ansible-playbook monitoring/grafana/ansible/deploy-dev.yaml"
 fi
 
 echo "✅ Cluster setup complete!"

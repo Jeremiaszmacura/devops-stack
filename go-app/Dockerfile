@@ -2,10 +2,9 @@ FROM golang:1.20 AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
-RUN go mod download
-
+COPY go.mod ./
 COPY . .
+RUN go mod tidy
 
 RUN go build -o go-app ./cmd/main.go
 

@@ -15,3 +15,21 @@
 - Write code that is easy to test. This includes writing functions that are pure (i.e., they do not have side effects) and can be easily mocked or stubbed in tests. Avoid writing code that is tightly coupled to specific implementations or external dependencies, as this can make testing more difficult.
 
 - Catch errors immediately and handle exceptions properly.
+
+- Add docstrings to all functions and classes to explain their purpose, parameters, and return values. Docstrings should be clear and concise.
+
+- Implementation should be data oriented, meaning that the code should be designed to work with data structures and objects (Object-Oriented Programming).
+
+## Project specific rules
+
+- `recreate-cluster` script is the main entry point for deploying the Kubernetes cluster. It should be designed to be idempotent, meaning that running it multiple times should not cause any issues or unintended consequences. The script should handle all necessary steps for creating and configuring the cluster, including deploying the various components and applications.
+
+- Each directory in project contain different component of the cluster.
+
+- Python and Go applications are simple sample applications. Their traffic is monitored with Prometheus and visualized in Grafana.
+
+- Grafana dashboards are persisted in `monitoring/grafana/ansible/dashboards` directory. Each dashboard should be defined in a separate JSON file.
+
+- Frontend application is designed to provide a simple interface for testing the Python and Go applications. It should allow users to trigger requests to the backend applications and display the results. Those results are then monitored with Prometheus and visualized in Grafana.
+
+- Documentation is built using mkdocs in `documentation` directory and should be clear and concise. Documentation should be up-to-date with the current state of the project. Each project should have own documentation page explaining its purpose. Documentation should include instructions for deploying the cluster, and explaining workflow of the cluster and its components.

@@ -3,18 +3,15 @@
   hosts: localhost
   connection: local
   vars:
-    environment: "{{ env | default('dev') }}"
-    grafana_url: "{{ vault_grafana_url }}"
-    grafana_user: "{{ vault_grafana_user }}"
-    grafana_password: "{{ vault_grafana_password }}"
-    prometheus_url: "{{ vault_prometheus_url }}"
-  vars_files:
-    - "vault/vault-{{ environment }}.yaml"
+    grafana_url: "http://localhost:30030"
+    grafana_user: "admin"
+    grafana_password: "admin"
+    prometheus_url: "http://prometheus:9090"
   
   tasks:
     - name: Display environment information
       debug:
-        msg: "Configuring {{ environment }} environment - Grafana: {{ grafana_url }}, Prometheus: {{ prometheus_url }}"
+        msg: "Configuring Grafana: {{ grafana_url }}, Prometheus: {{ prometheus_url }}"
         
     - name: Configure Prometheus datasource in Grafana
       uri:

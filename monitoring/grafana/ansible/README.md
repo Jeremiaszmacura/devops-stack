@@ -1,19 +1,16 @@
 # Grafana Dashboard Deployment with Ansible
 
-Automated deployment of Grafana dashboards using Ansible with Vault-encrypted credentials for multiple environments.
+Automated deployment of Grafana dashboards using Ansible.
 
-## 🏗️ Structure
+## Structure
 
 ```
 grafana-ansible/
 ├── README.md                  # This file
 ├── deploy-dev.yaml           # Development deployment
-├── deploy-prod.yaml          # Production deployment  
+├── deploy-prod.yaml          # Production deployment
 ├── setup-datasource.yaml    # Configure Prometheus datasource
 ├── deploy-dashboards.yaml   # Deploy dashboard JSON files
-├── vault-dev.yaml            # Encrypted dev credentials
-├── vault-prod.yaml           # Encrypted prod credentials
-├── .vault_pass              # Vault password file
 ├── deploy-to-dev.sh         # Dev deployment script
 ├── deploy-to-prod.sh        # Prod deployment script (with confirmation)
 └── dashboards/              # Dashboard JSON definitions
@@ -22,7 +19,7 @@ grafana-ansible/
     └── infrastructure.json
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Development Environment
 ```bash
@@ -30,7 +27,7 @@ grafana-ansible/
 ./deploy-to-dev.sh
 
 # Or manually
-ansible-playbook deploy-dev.yaml --vault-password-file .vault_pass
+ansible-playbook deploy-dev.yaml
 ```
 
 ### Production Environment
@@ -39,54 +36,20 @@ ansible-playbook deploy-dev.yaml --vault-password-file .vault_pass
 ./deploy-to-prod.sh
 
 # Or manually
-ansible-playbook deploy-prod.yaml --vault-password-file .vault_pass
+ansible-playbook deploy-prod.yaml
 ```
 
-## 🔧 Individual Components
+## Individual Components
 
 ```bash
 # Setup Prometheus datasource only
-ansible-playbook setup-datasource.yaml -e env=dev --vault-password-file .vault_pass
+ansible-playbook setup-datasource.yaml
 
 # Deploy dashboards only
-ansible-playbook deploy-dashboards.yaml -e env=dev --vault-password-file .vault_pass
+ansible-playbook deploy-dashboards.yaml
 ```
 
-## 🔐 Vault Management
-
-### View Credentials
-```bash
-# Development
-ansible-vault view vault-dev.yaml --vault-password-file .vault_pass
-
-# Production
-ansible-vault view vault-prod.yaml --vault-password-file .vault_pass
-```
-
-### Edit Credentials
-```bash
-# Development
-ansible-vault edit vault-dev.yaml --vault-password-file .vault_pass
-
-# Production
-ansible-vault edit vault-prod.yaml --vault-password-file .vault_pass
-```
-
-## Decrypt Credentials
-```bash
-# Decrypt vault files (for manual editing)
-ansible-vault decrypt vault-dev.yaml --vault-password-file .vault_pass
-ansible-vault decrypt vault-prod.yaml --vault-password-file .vault_pass
-```
-
-## Encrypt Credentials
-```bash
-# Re-encrypt vault files after editing
-ansible-vault encrypt vault-dev.yaml --vault-password-file .vault_pass
-ansible-vault encrypt vault-prod.yaml --vault-password-file .vault_pass
-```
-
-## 📊 Adding New Dashboards
+## Adding New Dashboards
 
 1. Create a new JSON file in `dashboards/` directory
 2. Ensure the JSON includes `"overwrite": true` to replace existing dashboards
@@ -98,65 +61,25 @@ Example dashboard structure:
   "dashboard": {
     "id": null,
     "title": "My New Dashboard",
-    "panels": [ /* your panels */ ]
+    "panels": []
   },
   "overwrite": true
 }
 ```
 
-## 🌍 Environment Configuration
-
-### Development (vault-dev.yaml)
-- **Grafana URL**: `http://localhost:3000`
-- **Prometheus URL**: `http://prometheus:9090`
-- **Credentials**: Basic dev credentials
-
-### Production (vault-prod.yaml)
-- **Grafana URL**: Production Grafana instance
-- **Prometheus URL**: Production Prometheus instance
-- **Credentials**: Secure production credentials
-
-## ✨ Features
-
-- 🔒 **Secure**: Credentials encrypted with Ansible Vault
-- 🏗️ **Multi-environment**: Separate dev/prod configurations
-- 🔄 **Automatic updates**: Overwrites existing dashboards
-- 📊 **Dashboard discovery**: Automatically finds all JSON files
-- 🛡️ **Safety checks**: Production deployment requires confirmation
-- 📝 **Detailed logging**: Shows deployment status and results
-
-## 🧪 Integration with Cluster
-
-This is automatically called by `recreate-cluster.sh`:
-```bash
-# After cluster setup, dashboards are deployed
-sleep 15 && ansible-playbook grafana-ansible/deploy-dev.yaml --vault-password-file grafana-ansible/.vault_pass
-```
-
-## 🔍 Troubleshooting
-
-### Vault Issues
-```bash
-# Test vault password
-ansible-vault view vault-dev.yaml --vault-password-file .vault_pass
-
-# Re-encrypt with new password
-ansible-vault rekey vault-dev.yaml
-```
+## Troubleshooting
 
 ### Connection Issues
-- Ensure Grafana is accessible at the configured URL
+- Ensure Grafana is accessible at `http://localhost:30030`
 - Check port-forwarding is active for local development
-- Verify credentials in vault files
 
 ### Dashboard Issues
 - Validate JSON syntax in dashboard files
 - Ensure `"overwrite": true` is set in JSON
 - Check Grafana logs for import errors
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Ansible installed (`brew install ansible` or `pip install ansible`)
 - Running Grafana instance
-- Valid credentials configured in vault files
 - Dashboard JSON files in correct format
