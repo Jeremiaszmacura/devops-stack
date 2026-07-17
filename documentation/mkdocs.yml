@@ -1,9 +1,10 @@
 site_name: DevOps Project Documentation
+site_url: https://jeremiaszmacura.github.io/devops-stack/
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - Adding a Service: adding-a-service.md
-  - API Reference: api-reference.md
+  - Design: design.md
 theme:
   name: material
   palette:
