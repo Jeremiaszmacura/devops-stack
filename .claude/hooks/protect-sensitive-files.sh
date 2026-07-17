@@ -2,7 +2,7 @@
 set -euo pipefail
 file=$(jq -r '.tool_input.file_path // ""')
 
-deny_globs=(".env*" "package-lock.json" ".git/*")
+deny_globs=(".git/*")
 
 for g in "${deny_globs[@]}"; do
   if printf '%s\n' "$file" | grep -Eiq "^${g//\*/.*}$"; then

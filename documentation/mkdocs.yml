@@ -2,6 +2,7 @@ site_name: DevOps Project Documentation
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
+  - Adding a Service: adding-a-service.md
   - API Reference: api-reference.md
 theme:
   name: material

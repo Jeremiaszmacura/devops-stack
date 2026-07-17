@@ -16,11 +16,15 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|MultiEdit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "FILE=$(jq -r '.tool_input.file_path') && if [[ \"$FILE\" == *.go ]]; then DIR=$(dirname \"$FILE\"); (cd \"$DIR\" && golangci-lint run --fix \"./...\"); fi"
+            "command": ".claude/hooks/go-changed.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/python-changed.sh"
           }
         ]
       }
@@ -30,7 +34,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "osascript -e 'display notification \"Claude needs your attention\" with title \"Claude Code\"'"
+            "command": ".claude/hooks/lint.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/go-test.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/lint-python.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/test-python.sh"
           }
         ]
       }

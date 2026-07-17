@@ -1,3 +1,5 @@
+files: ^(python-app)/
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.5.0
@@ -5,6 +7,7 @@ repos:
   - id: trailing-whitespace
   - id: end-of-file-fixer
   - id: check-yaml
+    args: [--allow-multiple-documents]
   - id: debug-statements
   - id: name-tests-test
     args: [--pytest-test-first]
