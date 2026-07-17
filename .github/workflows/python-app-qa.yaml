@@ -23,9 +23,10 @@ jobs:
           python-version: '3.14'
 
       - name: Install qa deps
-        working-directory: python-app
         run: pip install -r requirements-dev.txt
 
+      - name: Run linters
+        run: make lint-python
+
       - name: Run app tests
-        working-directory: python-app
-        run: tox -e py314 -- .
+        run: make test-unit-python

@@ -3,42 +3,38 @@ import logging
 import datetime
 import pathlib
 
-
-def create_logger(logs_dir: str) -> tuple:
-    os.makedirs(logs_dir, exist_ok=True)
-    time_stamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    logs_filename = f"{time_stamp}-python-app.log"
-    logs_file_path = os.path.join(logs_dir, logs_filename)
-
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-
-    if not logger.handlers:
-        file_handler = logging.FileHandler(logs_file_path)
-        file_handler.setLevel(logging.INFO)
-
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-
-        formatter = logging.Formatter("[%(asctime)s] [%(levelname)s]: %(message)s")
-        file_handler.setFormatter(formatter)
-        console_handler.setFormatter(formatter)
-
-        logger.addHandler(file_handler)
-        logger.addHandler(console_handler)
-
-    return logger, logs_file_path
+logger = logging.getLogger("python-app")
+logger.setLevel(logging.INFO)
 
 
 def get_logs_dir() -> str:
+    """Return the path to the service's logs directory."""
     current_dir_name = pathlib.Path(__file__).parent
-    module_src_path, _ = os.path.split(current_dir_name)
-    module_main_path, _ = os.path.split(module_src_path)
+    module_main_path, _ = os.path.split(current_dir_name)
     logs_dir_name = "logs"
-    logs_dir = os.path.join(module_main_path, logs_dir_name)
-    return logs_dir
+    return os.path.join(module_main_path, logs_dir_name)
 
 
-logs_dir = get_logs_dir()
-logger, logs_file_path = create_logger(logs_dir)
-logger.info(f"Logger configured. Logs path: {logs_file_path}")
+def configure_logging(logs_dir: str) -> str:
+    """Attach a file handler and a console handler to the logger, if not already configured.
+
+    Returns the path to the log file being written.
+    """
+    os.makedirs(logs_dir, exist_ok=True)
+    time_stamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    logs_file_path = os.path.join(logs_dir, f"{time_stamp}-python-app.log")
+
+    if not logger.handlers:
+        formatter = logging.Formatter("[%(asctime)s] [%(levelname)s]: %(message)s")
+
+        file_handler = logging.FileHandler(logs_file_path)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
+    return logs_file_path
