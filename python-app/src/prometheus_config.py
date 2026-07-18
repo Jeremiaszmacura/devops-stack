@@ -27,13 +27,15 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
 
         process_time = time.time() - start_time
 
-        # Extract endpoint path
-        endpoint = request.url.path
+        # Label with the matched route path; a constant for unmatched paths keeps
+        # label cardinality bounded (bot probes/404 scans must not mint new series)
+        route = request.scope.get("route")
+        endpoint = route.path if route else "unmatched"
         method = request.method
         status_code = str(response.status_code)
         user_agent = request.headers.get("user-agent", "unknown")
 
-        # Increment counters for ALL requests (including /metrics)
+        # Application metrics; monitoring endpoints are tracked separately below
         if endpoint not in ["/metrics", "/health"]:
             REQUEST_COUNT.labels(method=method, endpoint=endpoint, status_code=status_code).inc()
             REQUEST_DURATION.labels(method=method, endpoint=endpoint).observe(process_time)

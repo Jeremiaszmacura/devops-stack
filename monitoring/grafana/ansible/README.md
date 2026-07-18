@@ -70,7 +70,7 @@ Example dashboard structure:
 ## Troubleshooting
 
 ### Connection Issues
-- Ensure Grafana is accessible at `http://localhost:30030`
+- Ensure Grafana is accessible at `http://grafana.localhost`
 - Check port-forwarding is active for local development
 
 ### Dashboard Issues

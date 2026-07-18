@@ -34,10 +34,9 @@ kind: Service
 metadata:
   name: prometheus
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: prometheus
   ports:
     - port: 9090
       targetPort: 9090
-      nodePort: 30090  # Access via http://localhost:30090

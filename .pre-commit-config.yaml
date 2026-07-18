@@ -1,4 +1,4 @@
-files: ^(python-app)/
+files: ^(python-app|e2e)/
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -37,4 +37,4 @@ repos:
   - id: bandit
     language: python
     language_version: python3
-    args: [--skip, B101, --skip, B311]
+    args: [--skip, 'B101,B311']

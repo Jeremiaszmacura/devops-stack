@@ -3,10 +3,10 @@
   hosts: localhost
   connection: local
   vars:
-    grafana_url: "http://localhost:30030"
+    grafana_url: "http://grafana.localhost"
     grafana_user: "admin"
     grafana_password: "admin"
-    dashboards_dir: "./dashboards"
+    dashboards_dir: "{{ playbook_dir }}/dashboards"
   
   tasks:
     - name: Display environment information

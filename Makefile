@@ -1,23 +1,36 @@
 # Primary Targets
 
-.PHONY: all build test
+.PHONY: all build build-go test
 
 all: build test
 
 GO_SERVICES := $(shell find . -name 'go.mod' -not -path '*/vendor/*' -exec dirname {} \; | sort -u)
 PYTHON_SERVICES := $(shell find . -name 'tox.ini' -not -path '*/.venv/*' -exec dirname {} \; | sort -u)
 
-BUILD_TARGETS := $(GO_SERVICES)
+build: build-go
 
-build: $(BUILD_TARGETS)
+build-go:
+	@for service in $(GO_SERVICES); do \
+		echo "==> go build: $$service"; \
+		(cd $$service && go build ./...) || exit 1; \
+	done
 
 test: test-unit
 
 # Testing
 
-.PHONY: test-unit test-unit-go test-unit-python
+.PHONY: test-unit test-unit-go test-unit-python test-e2e
+
+E2E_DIR := e2e
+E2E_VENV := $(E2E_DIR)/.venv
 
 test-unit: test-unit-go test-unit-python
+
+test-e2e:
+	@echo "==> e2e tests: $(E2E_DIR) (requires a running cluster, see ./recreate-cluster.sh)"
+	python3 -m venv $(E2E_VENV)
+	$(E2E_VENV)/bin/pip install --quiet -r $(E2E_DIR)/requirements.txt
+	cd $(E2E_DIR) && .venv/bin/pytest
 
 test-unit-go:
 	@for service in $(GO_SERVICES); do \
@@ -53,4 +66,6 @@ lint-python:
 
 help:
 	@echo "Available targets:"
+	@echo "  build: Build all Go services"
 	@echo "  test-unit: Run unit tests"
+	@echo "  test-e2e: Run end-to-end tests against a running cluster"

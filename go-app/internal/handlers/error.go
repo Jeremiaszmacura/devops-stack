@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Error returns a simulated 500 response for testing error monitoring.
 func Error(c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, gin.H{
 		"error":     "This is a simulated error endpoint",

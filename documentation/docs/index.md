@@ -1,4 +1,4 @@
-# DevOps Prectice Project
+# DevOps Practice Project
 
 This project contains Kubernetes cluster with sample applications, Prometheus monitoring and Grafana for DevOps learning purposes.
 

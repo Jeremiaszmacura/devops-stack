@@ -36,10 +36,9 @@ kind: Service
 metadata:
   name: nginx-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: nginx-pod
   ports:
     - port: 80
       targetPort: 80
-      nodePort: 30080  # access via http://localhost:30080

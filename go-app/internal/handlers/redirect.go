@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Redirect responds with a 302 redirect to the /health endpoint.
 func Redirect(c *gin.Context) {
-	c.Header("Location", "/health")
-	c.String(http.StatusFound, "Redirecting...")
+	c.Redirect(http.StatusFound, "/health")
 }

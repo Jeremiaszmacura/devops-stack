@@ -18,23 +18,27 @@ def get_logs_dir() -> str:
 def configure_logging(logs_dir: str) -> str:
     """Attach a file handler and a console handler to the logger, if not already configured.
 
-    Returns the path to the log file being written.
+    Returns the path to the log file being written; on repeat calls, the path
+    already used by the existing file handler.
     """
+    for handler in logger.handlers:
+        if isinstance(handler, logging.FileHandler):
+            return handler.baseFilename
+
     os.makedirs(logs_dir, exist_ok=True)
     time_stamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     logs_file_path = os.path.join(logs_dir, f"{time_stamp}-python-app.log")
 
-    if not logger.handlers:
-        formatter = logging.Formatter("[%(asctime)s] [%(levelname)s]: %(message)s")
+    formatter = logging.Formatter("[%(asctime)s] [%(levelname)s]: %(message)s")
 
-        file_handler = logging.FileHandler(logs_file_path)
-        file_handler.setLevel(logging.INFO)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+    file_handler = logging.FileHandler(logs_file_path)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
 
     return logs_file_path

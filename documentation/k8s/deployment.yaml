@@ -27,11 +27,10 @@ metadata:
   labels:
     app: mkdocs
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - port: 80
       targetPort: 11000
-      nodePort: 30800
       protocol: TCP
   selector:
     app: mkdocs

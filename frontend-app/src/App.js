@@ -8,7 +8,6 @@ function App() {
   const [requestCount, setRequestCount] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState([]);
-  const [jsonBody, setJsonBody] = useState('{\n  "key": "value"\n}');
   const [stats, setStats] = useState({
     total: 0,
     successful: 0,
@@ -34,11 +33,11 @@ function App() {
   };
 
   const getBaseUrl = (app) => {
-    // Use nginx proxy paths
+    // Backends are called cross-origin via their ingress hosts (CORS enabled at the ingress)
     if (app === 'python-app') {
-      return '/api/python';
+      return 'http://python.localhost';
     } else if (app === 'go-app') {
-      return '/api/go';
+      return 'http://go.localhost';
     }
     return '';
   };
@@ -47,29 +46,13 @@ function App() {
     return endpoints[selectedApp].find((e) => e.name === selectedEndpoint);
   };
 
-  const isPostEndpoint = () => {
-    const meta = getSelectedEndpointMeta();
-    return meta && meta.method === 'POST';
-  };
-
   const makeRequest = async (url) => {
     const startTime = Date.now();
-    const meta = getSelectedEndpointMeta();
-    const method = meta ? meta.method : 'GET';
     try {
-      let response;
-      if (method === 'POST') {
-        const parsedBody = JSON.parse(jsonBody);
-        response = await axios.post(url, parsedBody, {
-          timeout: 10000,
-          validateStatus: (status) => status < 600
-        });
-      } else {
-        response = await axios.get(url, {
-          timeout: 10000,
-          validateStatus: (status) => status < 600
-        });
-      }
+      const response = await axios.get(url, {
+        timeout: 10000,
+        validateStatus: (status) => status < 600
+      });
       const endTime = Date.now();
       return {
         success: true,
@@ -188,21 +171,6 @@ function App() {
               ))}
             </select>
           </div>
-
-          {isPostEndpoint() && (
-            <div className="form-group">
-              <label htmlFor="json-body">Request Body (JSON):</label>
-              <textarea
-                id="json-body"
-                value={jsonBody}
-                onChange={(e) => setJsonBody(e.target.value)}
-                className="form-control"
-                rows={6}
-                placeholder='{"key": "value"}'
-                style={{ fontFamily: 'monospace' }}
-              />
-            </div>
-          )}
 
           <div className="form-group">
             <label htmlFor="request-count">Number of Requests:</label>

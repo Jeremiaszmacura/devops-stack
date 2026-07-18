@@ -1,17 +1,17 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: mkdocs-ingress
+  name: frontend-app-ingress
 spec:
   ingressClassName: nginx
   rules:
-    - host: docs.localhost
+    - host: app.localhost
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: mkdocs-service
+                name: frontend-app-service
                 port:
                   number: 80

@@ -1,27 +1,80 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"go-app/internal/appmetrics"
 	"go-app/internal/handlers"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+const (
+	listenAddr      = ":8080"
+	readTimeout     = 10 * time.Second
+	writeTimeout    = 10 * time.Second
+	shutdownTimeout = 10 * time.Second
+)
+
+// StartServer runs the HTTP server on :8080 and shuts it down gracefully
+// when SIGINT or SIGTERM is received.
 func StartServer() error {
-	router := gin.Default()                       // Initialize default Gin router (includes Logger and Recovery middleware)
-	router.Use(appmetrics.PrometheusMiddleware()) // Custom middleware for Prometheus metrics
+	srv := &http.Server{
+		Addr:         listenAddr,
+		Handler:      newRouter(),
+		ReadTimeout:  readTimeout,
+		WriteTimeout: writeTimeout,
+	}
+
+	serveErr := make(chan error, 1)
+	go func() {
+		serveErr <- srv.ListenAndServe()
+	}()
+	log.Println("Starting Go server on :8080")
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	select {
+	case err := <-serveErr:
+		return fmt.Errorf("failed to start server: %w", err)
+	case sig := <-quit:
+		log.Printf("Received %s, shutting down", sig)
+	}
+
+	return shutdownGracefully(srv)
+}
+
+// newRouter builds the Gin router with Prometheus middleware and all routes.
+func newRouter() *gin.Engine {
+	router := gin.Default()                       // Includes Logger and Recovery middleware.
+	router.Use(appmetrics.PrometheusMiddleware()) // Custom middleware for Prometheus metrics.
 
 	router.GET("/", handlers.Home)
 	router.GET("/health", handlers.HealthCheck)
-	router.GET("/metrics", handlers.Metrics)
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	router.GET("/error", handlers.Error)
 	router.GET("/redirect", handlers.Redirect)
-	log.Println("Starting Go server on :8080")
-	if err := router.Run(":8080"); err != nil {
-		return fmt.Errorf("failed to start server: %w", err)
+
+	return router
+}
+
+// shutdownGracefully stops the server, allowing in-flight requests up to
+// shutdownTimeout to complete.
+func shutdownGracefully(srv *http.Server) error {
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		return fmt.Errorf("graceful shutdown failed: %w", err)
 	}
 	return nil
 }

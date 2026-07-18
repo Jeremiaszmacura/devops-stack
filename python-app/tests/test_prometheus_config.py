@@ -38,6 +38,16 @@ class TestPrometheusMiddleware(unittest.TestCase):
             before_monitoring + 1,
         )
 
+    def test_unmatched_path_is_labeled_with_constant_endpoint(self):
+        before = self._counter_value(REQUEST_COUNT, method="GET", endpoint="unmatched", status_code="404")
+
+        response = self.client.get("/no-such-path")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            self._counter_value(REQUEST_COUNT, method="GET", endpoint="unmatched", status_code="404"), before + 1
+        )
+
     def test_metrics_endpoint_is_excluded_from_request_count_but_tracked_as_monitoring(self):
         before_monitoring = self._counter_value(MONITORING_REQUESTS, endpoint="/metrics", user_agent="testclient")
 

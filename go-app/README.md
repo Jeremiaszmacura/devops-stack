@@ -52,8 +52,8 @@ kind load docker-image go-app:dev --name sample-cluster
 # Deploy to cluster
 kubectl apply -f k8s/
 
-# Access via NodePort
-curl http://localhost:31000
+# Access via ingress
+curl http://go.localhost
 ```
 
 ## Prometheus Integration

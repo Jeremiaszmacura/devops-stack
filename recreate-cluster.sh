@@ -1,10 +1,32 @@
 #!/bin/bash
+set -euo pipefail
+
+# Poll an URL every 2s until it answers over HTTP or the timeout (seconds)
+# elapses; prints a success line or a warning, never fails the script.
+wait_for_url() {
+    local name=$1 url=$2 timeout=$3
+    echo "  Checking ${name}..."
+    while ! curl -s "$url" > /dev/null && [ "$timeout" -gt 0 ]; do
+        sleep 2
+        timeout=$((timeout-2))
+    done
+    if [ "$timeout" -le 0 ]; then
+        echo "⚠️  Warning: ${name} not accessible at ${url}"
+        echo "   Check service and pod status with: kubectl get pods,services"
+        return 0
+    fi
+    echo "✅ ${name} is accessible"
+}
 
 echo "🔄 Recreating Kind cluster..."
 
-# Cleanup and create cluster
-kind delete cluster --name sample-cluster
+# Cleanup and create cluster; deletion may fail when no cluster exists yet
+kind delete cluster --name sample-cluster || true
 kind create cluster --config kind-cluster.yaml --name sample-cluster
+
+# Install the ingress controller early so it starts while images build
+echo "🌐 Installing ingress-nginx controller..."
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.13.1/deploy/static/provider/kind/deploy.yaml
 
 # Build and load application images
 echo "🐳 Building and loading Docker images..."
@@ -18,11 +40,9 @@ kind load docker-image go-app:dev --name sample-cluster
 kind load docker-image mkdocs-documentation:dev --name sample-cluster
 kind load docker-image frontend-app:dev --name sample-cluster
 
-# Deploy infrastructure components first (namespaces, RBAC, etc.)
-echo "🏗️  Deploying infrastructure components..."
-if [ -d "infrastructure/k8s" ]; then
-    kubectl apply -f infrastructure/k8s/
-fi
+# The controller's admission webhook must be up before Ingress resources apply
+echo "⏳ Waiting for ingress-nginx controller..."
+kubectl rollout status deployment/ingress-nginx-controller -n ingress-nginx --timeout=180s
 
 # Deploy applications in order
 echo "🚀 Deploying applications..."
@@ -52,7 +72,7 @@ kubectl apply -f documentation/k8s/
 
 # Wait for deployments to be ready
 echo "⏳ Waiting for deployments to be ready..."
-kubectl wait --for=condition=available --timeout=300s deployment --all
+kubectl wait --for=condition=available --timeout=300s deployment --all || echo "⚠️  Warning: some deployments did not become ready within 300s"
 
 # Check for any failed pods
 echo "🔍 Checking pod status..."
@@ -64,99 +84,33 @@ if [ ! -z "$failed_pods" ]; then
     echo "📋 Pod details:"
     for pod in $failed_pods; do
         echo "--- Pod: $pod ---"
-        kubectl describe pod $pod | grep -A 10 -B 5 "Events:"
+        kubectl describe pod $pod | grep -A 10 -B 5 "Events:" || true
         echo ""
     done
 fi
 
 # Wait for services to be accessible
 echo "⏳ Waiting for services to be accessible..."
+wait_for_url "Grafana" http://grafana.localhost 60
+wait_for_url "Python app" http://python.localhost 30
+wait_for_url "Frontend app" http://app.localhost 30
+wait_for_url "Documentation" http://docs.localhost 30
 
-# Check Grafana
-echo "  Checking Grafana..."
-timeout=60
-while ! curl -s http://localhost:30030 > /dev/null && [ $timeout -gt 0 ]; do
-    sleep 2
-    timeout=$((timeout-2))
-done
-
-if [ $timeout -le 0 ]; then
-    echo "⚠️  Warning: Grafana not accessible at http://localhost:30030"
-    echo "   You may need to wait longer or check the service status"
-    kubectl get pods -l app=grafana
-else
-    echo "✅ Grafana is accessible"
-fi
-
-# Check Python App
-echo "  Checking Python app..."
-timeout=30
-while ! curl -s http://localhost:8000 > /dev/null && [ $timeout -gt 0 ]; do
-    sleep 2
-    timeout=$((timeout-2))
-done
-
-if [ $timeout -le 0 ]; then
-    echo "⚠️  Warning: Python app not accessible at http://localhost:8000"
-    echo "   Check service and pod status:"
-    kubectl get services python-app-service
-    kubectl get pods -l app=python-app
-else
-    echo "✅ Python app is accessible"
-fi
-
-# Check Frontend App
-echo "  Checking frontend-app..."
-timeout=30
-while ! curl -s http://localhost:3000 > /dev/null && [ $timeout -gt 0 ]; do
-    sleep 2
-    timeout=$((timeout-2))
-done
-
-if [ $timeout -le 0 ]; then
-    echo "⚠️  Warning: frontend-app not accessible at http://localhost:3000"
-    echo "   Check service and pod status:"
-    kubectl get services frontend-app-service
-    kubectl get pods -l app=frontend-app
-else
-    echo "✅ Frontend App is accessible"
-fi
-
-# Check MkDocs
-echo "  Checking Documentation..."
-timeout=30
-while ! curl -s http://localhost:12000 > /dev/null && [ $timeout -gt 0 ]; do
-    sleep 2
-    timeout=$((timeout-2))
-done
-
-if [ $timeout -le 0 ]; then
-    echo "⚠️  Warning: Documentation not accessible at http://localhost:12000"
-    echo "   Check service and pod status:"
-    kubectl get services mkdocs-service
-    kubectl get pods -l app=mkdocs
-    echo "   Pod events:"
-    kubectl get events --field-selector involvedObject.kind=Pod --sort-by='.lastTimestamp' | grep mkdocs
-else
-    echo "✅ Documentation is accessible"
-fi
-
-# Show service URLs (using NodePort from kind-cluster.yaml)
+# Show service URLs
 echo ""
 echo "🎉 Cluster ready! Services available at:"
-echo "  📊 Prometheus: http://localhost:30090"
-echo "  📈 Grafana: http://localhost:30030"
-echo "  🌐 NGINX: http://localhost:30080"
-echo "  🐍 Python App: http://localhost:8000"
-echo "  🔧 Go App: http://localhost:31080"
-echo "  ⚛️  Frontend App: http://localhost:3000"
-echo "  📚 Documentation: http://localhost:12000"
+echo "  📊 Prometheus: http://prometheus.localhost"
+echo "  📈 Grafana: http://grafana.localhost"
+echo "  🌐 NGINX: http://nginx.localhost"
+echo "  🐍 Python App: http://python.localhost"
+echo "  🔧 Go App: http://go.localhost"
+echo "  ⚛️  Frontend App: http://app.localhost"
+echo "  📚 Documentation: http://docs.localhost"
 echo ""
 
 # Deploy Grafana dashboards only if Grafana is accessible
-if curl -s http://localhost:30030 > /dev/null; then
+if curl -s http://grafana.localhost > /dev/null; then
     echo "🚀 Deploying dashboards to DEV environment..."
-    # Update the Grafana URL in the Ansible playbook to use the correct port
     ansible-playbook monitoring/grafana/ansible/deploy-dev.yaml
 else
     echo "⚠️  Skipping dashboard deployment - Grafana not accessible"

@@ -5,6 +5,9 @@ nav:
   - Getting Started: getting-started.md
   - Adding a Service: adding-a-service.md
   - Design: design.md
+  - Platform Decisions: platform-decisions.md
+  - Monitoring: monitoring.md
+  - End-to-End Tests: e2e-tests.md
 theme:
   name: material
   palette:
@@ -33,3 +36,8 @@ markdown_extensions:
   - meta
   - tables
   - def_list
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format

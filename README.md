@@ -1,14 +1,10 @@
-# DevOps Practice Cluster
+# Platform Engineering Cluster Sample
 
-This project contains Kubernetes cluster for DevOps learning purposes. Kubernetes cluster is deployed with `kind` tool and contains multiple components that are commonly used in production environments. The cluster is designed to be a playground for learning and experimenting with Kubernetes and its ecosystem.
+This project contains Kubernetes cluster for Platform Engineering learning purposes. Kubernetes cluster is deployed with `kind` tool and contains multiple components that are commonly used in production environments. The cluster is designed to be a playground for learning and experimenting with Kubernetes and its ecosystem.
 
-## Components
+## Documentation
 
-- `Prometheus` for monitoring
-- `Grafana` for visualization
-- `NGINX` as a sample application
-- `Python` and `Go applications` as sample backend services
-- `Frontend application` for testing the Python and Go applications
+https://jeremiaszmacura.github.io/devops-stack/
 
 ## Deploy
 
@@ -17,3 +13,7 @@ Create Kubernetes Cluster with all the components:
 ```sh
 ./recreate-cluster.sh
 ```
+
+All services are then reachable through ingress hostnames — the frontend at
+http://app.localhost, Grafana at http://grafana.localhost, and the full
+documentation at http://docs.localhost.

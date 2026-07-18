@@ -58,28 +58,19 @@ func PrometheusMiddleware() gin.HandlerFunc {
 		// Calculate duration
 		duration := time.Since(start).Seconds()
 
-		// Extract request info
+		// Label with the matched route template; a constant for unmatched routes
+		// keeps label cardinality bounded (bot probes must not mint new series)
 		endpoint := c.FullPath()
 		if endpoint == "" {
-			endpoint = c.Request.URL.Path
+			endpoint = "unmatched"
 		}
 		method := c.Request.Method
 		statusCode := strconv.Itoa(c.Writer.Status())
 		userAgent := c.GetHeader("User-Agent")
 
 		// Track metrics differently for app vs monitoring endpoints
-		if endpoint != "/metrics" && endpoint != "/health" {
-			// Application metrics
-			RequestCount.WithLabelValues(method, endpoint, statusCode).Inc()
-			RequestDuration.WithLabelValues(method, endpoint).Observe(duration)
-
-			// Status class (2XX, 3XX, 4XX, 5XX)
-			statusClass := string(statusCode[0]) + "XX"
-			ResponseStatus.WithLabelValues(statusClass).Inc()
-		}
-
-		// Separate tracking for monitoring endpoints
-		if endpoint == "/metrics" || endpoint == "/health" {
+		isMonitoring := endpoint == "/metrics" || endpoint == "/health"
+		if isMonitoring {
 			// Extract simplified user agent (e.g., "Prometheus" from "Prometheus/2.x.x")
 			simplifiedUA := userAgent
 			if strings.Contains(userAgent, "/") {
@@ -89,6 +80,14 @@ func PrometheusMiddleware() gin.HandlerFunc {
 				simplifiedUA = "unknown"
 			}
 			MonitoringRequests.WithLabelValues(endpoint, simplifiedUA).Inc()
+		} else {
+			// Application metrics
+			RequestCount.WithLabelValues(method, endpoint, statusCode).Inc()
+			RequestDuration.WithLabelValues(method, endpoint).Observe(duration)
+
+			// Status class (2XX, 3XX, 4XX, 5XX)
+			statusClass := string(statusCode[0]) + "XX"
+			ResponseStatus.WithLabelValues(statusClass).Inc()
 		}
 	}
 }

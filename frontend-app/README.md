@@ -38,12 +38,12 @@ docker build -t frontend-app:dev .
 
 The application is deployed as:
 - **Deployment**: `frontend-app-deployment` 
-- **Service**: `frontend-app-service` (NodePort 30070)
-- **Access**: http://localhost:3000
+- **Service**: `frontend-app-service` (ClusterIP, exposed via `frontend-app-ingress`)
+- **Access**: http://app.localhost
 
 ## Usage
 
-1. Open http://localhost:3000 in your browser
+1. Open http://app.localhost in your browser
 2. Select target application (Python or Go)
 3. Choose endpoint to test
 4. Set number of requests (1-100)
@@ -52,8 +52,9 @@ The application is deployed as:
 
 ## Architecture
 
-The frontend-app uses an nginx reverse proxy to route API calls:
-- `/api/python/*` → `python-app-service:8000/*`
-- `/api/go/*` → `go-app-service:8080/*`
+The frontend calls the backends directly on their ingress hosts:
+- `http://python.localhost/*`
+- `http://go.localhost/*`
 
-This avoids CORS issues and allows the frontend-app to communicate with backend services using Kubernetes service names.
+These are cross-origin requests, so both backend Ingress resources enable CORS
+(`nginx.ingress.kubernetes.io/enable-cors`).

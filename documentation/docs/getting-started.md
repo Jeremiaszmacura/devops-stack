@@ -1,19 +1,28 @@
-# Getting Started with MkDocs Kubernetes Project
+# Getting Started
 
-Welcome to the MkDocs Kubernetes project! This guide will help you set up the project and get started with building and deploying your documentation.
+This guide helps you deploy the local Kubernetes cluster with all its
+applications.
 
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
 
-- Python 3.13 or higher
-- pip (Python package installer)
-- Docker (for containerization)
-- kubectl (for interacting with your Kubernetes cluster)
-- kind to simulate kubernetes cluster localy
+- Docker (kind runs the cluster nodes as containers)
+- kind (local Kubernetes cluster)
+- kubectl (for interacting with the cluster)
+- Ansible (`ansible-playbook` provisions the Grafana datasource and dashboards during deployment)
+- Python 3.13 or higher and pip (for running the end-to-end test suite)
 
 ## Run local Kubernetes cluster with all applications
 
 ```sh
 ./recreate-cluster.sh
 ```
+
+When the script finishes, every service is reachable through the ingress on
+`*.localhost` hostnames — see the routing map in [Design](design.md). Key entry
+points:
+
+- Frontend UI: http://app.localhost
+- Grafana: http://grafana.localhost
+- Documentation: http://docs.localhost

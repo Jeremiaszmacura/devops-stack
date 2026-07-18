@@ -1,7 +1,6 @@
 {
     "dashboard": {
-        "id": "b835d320-5c5e-4f7e-9179-21d009df1544",
-        "uid:": "0ea4c1a2-7e5e-4f3d-b5ae-79bee4cc93f4",
+        "id": null,
         "title": "Infrastructure Overview",
         "tags": ["infrastructure", "prometheus", "node-exporter", "kubernetes"],
         "timezone": "browser",

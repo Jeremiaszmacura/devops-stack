@@ -1,0 +1,49 @@
+name: e2e tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install kind
+        uses: helm/kind-action@v1
+        with:
+          install_only: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install Ansible
+        run: pip install ansible-core
+
+      - name: Create cluster and deploy all components
+        run: ./recreate-cluster.sh
+
+      - name: Run e2e tests
+        run: make test-e2e
+
+      - name: Dump cluster state on failure
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide || true
+          kubectl get events --sort-by=.lastTimestamp | tail -n 50 || true
+          for deployment in $(kubectl get deployments -o name); do
+            echo "--- logs: $deployment ---"
+            kubectl logs "$deployment" --tail=50 || true
+          done
