@@ -11,6 +11,7 @@ A local Kubernetes playground (`kind`, 3 nodes: 1 control-plane, 2 workers) for 
 | `python-app` | FastAPI sample backend, exposes `/metrics` | http://python.localhost |
 | `go-app` | Gin sample backend, exposes `/metrics` | http://go.localhost |
 | `nginx` | Standalone sample app, scraped via `nginx-exporter` | http://nginx.localhost |
+| `vault` | HashiCorp Vault (dev mode), shared secret store for python-app/go-app | http://vault.localhost |
 | `frontend-app` | React UI to trigger requests against python-app/go-app | http://app.localhost |
 | `prometheus` | Scrapes metrics from all app `/metrics` endpoints + node exporters | http://prometheus.localhost |
 | `grafana` | Dashboards over Prometheus data, provisioned via Ansible | http://grafana.localhost |
@@ -39,6 +40,7 @@ flowchart LR
         IC -->|grafana.localhost| GR["grafana-service:3000"]
         IC -->|prometheus.localhost| PR["prometheus:9090"]
         IC -->|nginx.localhost| NG["nginx-service:80"]
+        IC -->|vault.localhost| VA["vault-service:8200"]
         IC -->|docs.localhost| DC["mkdocs-service:80"]
     end
 ```
@@ -86,6 +88,15 @@ Both expose the same endpoint contract so the frontend can target either interch
 - `GET /error` — simulated 500
 - `GET /redirect` — redirect to `/health`
 - `GET /metrics` — Prometheus format
+- `POST /secret` — store `{"key", "value"}` in Vault (201, or 502 when Vault fails)
+- `GET /secret/{key}` — read a secret from Vault (404 when missing)
+
+Both backends store secrets in the shared dev-mode Vault through its in-cluster
+service (`http://vault-service:8200`, configured via `VAULT_ADDR`/`VAULT_TOKEN`
+env vars in their Deployments). Each service keeps its secrets under its own KV
+path — `secret/<service>/<key>`, set via `VAULT_SECRET_PATH` — so backends
+cannot see each other's keys and Vault policies can later scope each service to
+its own path. See [Vault](vault.md).
 
 ## Monitoring
 
@@ -96,7 +107,7 @@ dashboard workflow.
 
 ## Deployment
 
-- Entry point: `./recreate-cluster.sh` — idempotent, deletes/recreates the `kind` cluster, installs ingress-nginx (pinned Kind manifest), builds and loads all Docker images, applies each component's `k8s/` manifests in order (Prometheus → Grafana → NGINX → python-app → go-app → frontend-app → documentation), then provisions Grafana dashboards via Ansible.
+- Entry point: `./recreate-cluster.sh` — idempotent, deletes/recreates the `kind` cluster, installs ingress-nginx (pinned Kind manifest), builds and loads all Docker images, applies each component's `k8s/` manifests in order (Prometheus → Grafana → NGINX → Vault → python-app → go-app → frontend-app → documentation), then provisions Grafana dashboards via Ansible.
 - Each component directory is self-contained: its own `Dockerfile`, `k8s/` manifests (Deployment, Service, Ingress), and `README.md`.
 - `kind-cluster.yaml` maps only host port 80 to the control-plane node, where the ingress controller runs (`ingress-ready=true` label).
 

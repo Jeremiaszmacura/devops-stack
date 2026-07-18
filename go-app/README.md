@@ -16,6 +16,8 @@ A Go web application built with Gin framework to expose Prometheus metrics and s
 - `GET /metrics` - Prometheus metrics
 - `GET /error` - Simulated error (returns 500)
 - `GET /redirect` - Redirect to /health
+- `POST /secret` - Store a secret in Vault (body: `{"key", "value"}`)
+- `GET /secret/{key}` - Read a secret from Vault
 
 ## Metrics Exposed
 

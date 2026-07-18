@@ -19,6 +19,7 @@ POLL_INTERVAL_SECONDS = 2
 FRONTEND_URL = "http://app.localhost"
 PROMETHEUS_URL = "http://prometheus.localhost"
 GRAFANA_URL = "http://grafana.localhost"
+VAULT_URL = "http://vault.localhost"
 
 GRAFANA_CREDENTIALS = ("admin", "admin")
 
@@ -51,6 +52,7 @@ SERVICE_URLS = {
     "grafana": GRAFANA_URL,
     "nginx": "http://nginx.localhost",
     "documentation": "http://docs.localhost",
+    "vault": VAULT_URL,
 }
 
 

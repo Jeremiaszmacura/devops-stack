@@ -25,4 +25,5 @@ points:
 
 - Frontend UI: http://app.localhost
 - Grafana: http://grafana.localhost
+- Vault UI: http://vault.localhost (token `root`)
 - Documentation: http://docs.localhost

@@ -58,6 +58,10 @@ kubectl apply -f monitoring/grafana/k8s/
 echo "  🌐 Deploying NGINX..."
 kubectl apply -f nginx/k8s/
 
+# Vault must exist before the backends that use it for secrets
+echo "  🔐 Deploying Vault..."
+kubectl apply -f vault/k8s/
+
 echo "  🐍 Deploying Python app..."
 kubectl apply -f python-app/k8s/
 
@@ -92,6 +96,7 @@ fi
 # Wait for services to be accessible
 echo "⏳ Waiting for services to be accessible..."
 wait_for_url "Grafana" http://grafana.localhost 60
+wait_for_url "Vault" http://vault.localhost 30
 wait_for_url "Python app" http://python.localhost 30
 wait_for_url "Frontend app" http://app.localhost 30
 wait_for_url "Documentation" http://docs.localhost 30
@@ -102,6 +107,7 @@ echo "🎉 Cluster ready! Services available at:"
 echo "  📊 Prometheus: http://prometheus.localhost"
 echo "  📈 Grafana: http://grafana.localhost"
 echo "  🌐 NGINX: http://nginx.localhost"
+echo "  🔐 Vault: http://vault.localhost"
 echo "  🐍 Python App: http://python.localhost"
 echo "  🔧 Go App: http://go.localhost"
 echo "  ⚛️  Frontend App: http://app.localhost"

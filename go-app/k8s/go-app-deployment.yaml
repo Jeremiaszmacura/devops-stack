@@ -20,6 +20,13 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
+          env:
+            - name: VAULT_ADDR
+              value: http://vault-service:8200
+            - name: VAULT_TOKEN
+              value: root  # Dev-mode root token, see vault/README.md
+            - name: VAULT_SECRET_PATH
+              value: go-app  # Own KV path so Vault roles can scope per service
           readinessProbe:
             httpGet:
               path: /health

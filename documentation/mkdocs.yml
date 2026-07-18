@@ -7,6 +7,7 @@ nav:
   - Design: design.md
   - Platform Decisions: platform-decisions.md
   - Monitoring: monitoring.md
+  - Vault: vault.md
   - End-to-End Tests: e2e-tests.md
 theme:
   name: material

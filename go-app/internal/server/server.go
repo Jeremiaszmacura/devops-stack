@@ -12,6 +12,7 @@ import (
 
 	"go-app/internal/appmetrics"
 	"go-app/internal/handlers"
+	"go-app/internal/vaultclient"
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -63,6 +64,10 @@ func newRouter() *gin.Engine {
 	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	router.GET("/error", handlers.Error)
 	router.GET("/redirect", handlers.Redirect)
+
+	secrets := handlers.NewSecretsHandler(vaultclient.NewFromEnv())
+	router.POST("/secret", secrets.Write)
+	router.GET("/secret/:key", secrets.Read)
 
 	return router
 }
