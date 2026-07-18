@@ -8,14 +8,15 @@ from hvac.exceptions import InvalidPath, VaultError
 from requests.exceptions import RequestException
 
 DEFAULT_VAULT_ADDR = "http://vault-service:8200"
-DEFAULT_VAULT_TOKEN = "root"  # Dev-mode root token, see vault/README.md
+DEFAULT_VAULT_TOKEN = "root"  # nosec B105 - dev-mode root token, see vault/README.md
 
 # Namespaces this service's secrets within the KV mount, so Vault policies
 # can scope each service to its own path.
-DEFAULT_SECRET_PATH = "python-app"
+DEFAULT_SECRET_PATH = "python-app"  # nosec B105 - a KV path, not a credential
 
-# Where dev-mode Vault pre-mounts the KV v2 engine.
-MOUNT_POINT = "secret"
+# KV v2 mount holding all service secrets (services/<service>/<key>),
+# enabled by the vault-configure Job.
+MOUNT_POINT = "services"
 
 
 class VaultClientError(Exception):

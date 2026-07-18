@@ -34,8 +34,8 @@ func TestWriteSecretSendsTokenAndPayload(t *testing.T) {
 	if err := client.WriteSecret(context.Background(), "api-key", "hunter2"); err != nil {
 		t.Fatalf("WriteSecret returned error: %v", err)
 	}
-	if gotPath != "/v1/secret/data/go-app/api-key" {
-		t.Errorf("got path %q, want /v1/secret/data/go-app/api-key", gotPath)
+	if gotPath != "/v1/services/data/go-app/api-key" {
+		t.Errorf("got path %q, want /v1/services/data/go-app/api-key", gotPath)
 	}
 	if gotToken != "test-token" {
 		t.Errorf("got token %q, want test-token", gotToken)
@@ -57,10 +57,10 @@ func TestWriteSecretReturnsErrorOnServerFailure(t *testing.T) {
 
 func TestReadSecretReturnsStoredValue(t *testing.T) {
 	client := newTestServer(t, func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/v1/secret/data/go-app/api-key" {
-			t.Errorf("got path %q, want /v1/secret/data/go-app/api-key", r.URL.Path)
+		if r.URL.Path != "/v1/services/data/go-app/api-key" {
+			t.Errorf("got path %q, want /v1/services/data/go-app/api-key", r.URL.Path)
 		}
-		w.Write([]byte(`{"data": {"data": {"value": "hunter2"}}}`))
+		_, _ = w.Write([]byte(`{"data": {"data": {"value": "hunter2"}}}`))
 	})
 
 	value, err := client.ReadSecret(context.Background(), "api-key")
@@ -84,7 +84,7 @@ func TestReadSecretReturnsErrSecretNotFound(t *testing.T) {
 
 func TestReadSecretReturnsErrorOnMissingValueField(t *testing.T) {
 	client := newTestServer(t, func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{"data": {"data": {"other": "x"}}}`))
+		_, _ = w.Write([]byte(`{"data": {"data": {"other": "x"}}}`))
 	})
 
 	if _, err := client.ReadSecret(context.Background(), "api-key"); err == nil {

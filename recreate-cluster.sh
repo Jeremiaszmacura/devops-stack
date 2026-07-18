@@ -97,6 +97,10 @@ fi
 echo "⏳ Waiting for services to be accessible..."
 wait_for_url "Grafana" http://grafana.localhost 60
 wait_for_url "Vault" http://vault.localhost 30
+
+# The backends store secrets in the services/ KV mount created by this job
+echo "⏳ Waiting for Vault KV mounts (services/, infra/)..."
+kubectl wait --for=condition=complete --timeout=60s job/vault-configure || echo "⚠️  Warning: vault-configure job did not complete within 60s"
 wait_for_url "Python app" http://python.localhost 30
 wait_for_url "Frontend app" http://app.localhost 30
 wait_for_url "Documentation" http://docs.localhost 30

@@ -24,8 +24,9 @@ const (
 	// mount, so Vault policies can scope each service to its own path.
 	defaultSecretPath = "go-app"
 
-	// mountPath is where dev-mode Vault pre-mounts the KV v2 engine.
-	mountPath = "secret"
+	// mountPath is the KV v2 mount holding all service secrets
+	// (services/<service>/<key>), enabled by the vault-configure Job.
+	mountPath = "services"
 
 	requestTimeout = 5 * time.Second
 )

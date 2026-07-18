@@ -93,10 +93,12 @@ Both expose the same endpoint contract so the frontend can target either interch
 
 Both backends store secrets in the shared dev-mode Vault through its in-cluster
 service (`http://vault-service:8200`, configured via `VAULT_ADDR`/`VAULT_TOKEN`
-env vars in their Deployments). Each service keeps its secrets under its own KV
-path — `secret/<service>/<key>`, set via `VAULT_SECRET_PATH` — so backends
-cannot see each other's keys and Vault policies can later scope each service to
-its own path. See [Vault](vault.md).
+env vars in their Deployments). Vault has two KV v2 root paths: `services/`
+holds all service secrets with one sub-path per service
+(`services/<service>/<key>`, set via `VAULT_SECRET_PATH`), and `infra/` is
+reserved for future infrastructure secrets. Backends cannot see each other's
+keys, and Vault policies can later scope each service to its own path. See
+[Vault](vault.md).
 
 ## Monitoring
 

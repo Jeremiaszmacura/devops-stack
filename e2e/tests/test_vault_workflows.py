@@ -1,17 +1,17 @@
 """End-to-end tests of the Vault-backed secret workflow.
 
 Both backends expose the same /secret endpoints (see design.md) but each
-stores its secrets under its own path in the shared dev-mode Vault
-(secret/<service>/<key>), so one backend must never see another backend's
-keys. Keys are randomized per test run because dev-mode Vault keeps state
-for the lifetime of its pod.
+stores its secrets under its own path in the services/ KV mount of the
+shared dev-mode Vault (services/<service>/<key>), so one backend must never
+see another backend's keys. Keys are randomized per test run because
+dev-mode Vault keeps state for the lifetime of its pod.
 """
 
 import uuid
 
 import requests
 
-from cluster import BACKENDS, REQUEST_TIMEOUT_SECONDS, VAULT_URL
+from cluster import BACKENDS, REQUEST_TIMEOUT_SECONDS, VAULT_TOKEN, VAULT_URL
 
 
 def unique_key(prefix):
@@ -33,6 +33,19 @@ def test_vault_is_initialized_and_unsealed():
     health = response.json()
     assert health["initialized"] is True
     assert health["sealed"] is False
+
+
+def test_kv_mounts_for_services_and_infra_exist():
+    """The vault-configure job enabled the services/ and infra/ KV mounts."""
+    response = requests.get(
+        f"{VAULT_URL}/v1/sys/mounts",
+        headers={"X-Vault-Token": VAULT_TOKEN},
+        timeout=REQUEST_TIMEOUT_SECONDS,
+    )
+    assert response.status_code == 200
+    mounts = response.json()["data"]
+    assert "services/" in mounts
+    assert "infra/" in mounts
 
 
 def test_secret_write_read_roundtrip(backend):
@@ -64,8 +77,8 @@ def test_secret_paths_are_isolated_between_backends():
     """A secret written through one backend is invisible to the other.
 
     Each service keeps its secrets under its own KV path
-    (secret/python-app/... vs secret/go-app/...), so reading the same key
-    through the other backend must answer 404 in both directions.
+    (services/python-app/... vs services/go-app/...), so reading the same
+    key through the other backend must answer 404 in both directions.
     """
     python_app, go_app = BACKENDS
 

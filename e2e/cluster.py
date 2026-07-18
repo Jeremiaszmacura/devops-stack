@@ -22,6 +22,7 @@ GRAFANA_URL = "http://grafana.localhost"
 VAULT_URL = "http://vault.localhost"
 
 GRAFANA_CREDENTIALS = ("admin", "admin")
+VAULT_TOKEN = "root"  # nosec B105 - dev-mode root token
 
 
 @dataclass(frozen=True)

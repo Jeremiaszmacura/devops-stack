@@ -26,7 +26,7 @@ spec:
             - name: VAULT_TOKEN
               value: root  # Dev-mode root token, see vault/README.md
             - name: VAULT_SECRET_PATH
-              value: go-app  # Own KV path so Vault roles can scope per service
+              value: go-app  # Own path under services/ so Vault roles can scope per service
           readinessProbe:
             httpGet:
               path: /health

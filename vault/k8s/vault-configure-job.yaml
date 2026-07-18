@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-configure
+  labels:
+    app: vault
+spec:
+  # Retries cover the window where Vault is still starting up
+  backoffLimit: 10
+  template:
+    metadata:
+      labels:
+        app: vault-configure
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: vault-configure
+          image: hashicorp/vault:1.20
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: VAULT_ADDR
+              value: http://vault-service:8200
+            - name: VAULT_TOKEN
+              value: root  # Dev-mode root token, see vault/README.md
+          # Enable the two KV v2 root paths: services/ (per-service secrets,
+          # e.g. services/go-app/...) and infra/ (reserved for infrastructure
+          # secrets). Idempotent — already-enabled mounts are skipped.
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              for mount in services infra; do
+                if vault secrets list | grep -q "^${mount}/"; then
+                  echo "KV mount ${mount}/ already enabled"
+                else
+                  vault secrets enable -path="${mount}" kv-v2
+                fi
+              done
